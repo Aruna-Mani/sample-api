@@ -1,4 +1,4 @@
-name: Deploy to IIS via FTP
+name: Deploy to Windows Server (IIS)
 
 on:
   push:
@@ -27,14 +27,20 @@ jobs:
       - name: Publish project
         run: dotnet publish -c Release -o ./publish
 
-      - name: Deploy via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      - name: Copy files to Windows Server
+        uses: appleboy/scp-action@master
         with:
-            server: ${{ secrets.FTP_SERVER }}
-            username: ${{ secrets.FTP_USERNAME }}
-            password: ${{ secrets.FTP_PASSWORD }}
-            local-dir: ./publish/
-            server-dir: /wwwroot/sampleapi/
-            protocol: ftps  # Try switching between ftps and ftp
-            passive: true   # Ensure passive mode is enabled
-            timeout: 60000  # Increase timeout to 60 seconds
+          host: ${{ secrets.WINDOWS_SERVER_IP }}
+          username: ${{ secrets.WINDOWS_SERVER_USER }}
+          password: ${{ secrets.WINDOWS_SERVER_PASS }}
+          source: "./publish/*"
+          target: "C:/inetpub/wwwroot/sampleapi"
+
+      - name: Restart IIS
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.WINDOWS_SERVER_IP }}
+          username: ${{ secrets.WINDOWS_SERVER_USER }}
+          password: ${{ secrets.WINDOWS_SERVER_PASS }}
+          script: |
+            iisreset
