@@ -1,0 +1,37 @@
+name: Deploy to IIS via FTP
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build project
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Publish project
+        run: dotnet publish -c Release -o ./publish
+
+      - name: Deploy via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4
+        with:
+          server: ftp.yourserver.com
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./publish/
+          server-dir: /wwwroot/sampleapi/
