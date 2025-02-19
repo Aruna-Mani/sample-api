@@ -30,8 +30,11 @@ jobs:
       - name: Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
-          server: ftp.yourserver.com
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./publish/
-          server-dir: /wwwroot/sampleapi/
+            server: ${{ secrets.FTP_SERVER }}
+            username: ${{ secrets.FTP_USERNAME }}
+            password: ${{ secrets.FTP_PASSWORD }}
+            local-dir: ./publish/
+            server-dir: /wwwroot/sampleapi/
+            protocol: ftps  # Try switching between ftps and ftp
+            passive: true   # Ensure passive mode is enabled
+            timeout: 60000  # Increase timeout to 60 seconds
